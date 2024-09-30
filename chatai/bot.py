@@ -1,8 +1,11 @@
 import asyncio
 import os
+import yaml
 from openai import OpenAI
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
+
+from util import MessageCache
 
 # Set up OpenAI client
 OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -10,17 +13,37 @@ OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # Define the Telegram bot token
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+# Config
+with open("config.yaml", "r") as f:
+    CONFIG = yaml.safe_load(f)
+    
+# Remember messages to feed as context
+MESSAGE_CACHE = MessageCache(CONFIG.serving.max_messages_in_memory)
+
 # Function to handle user messages
 async def handle_message(update: Update, context):
     # Get the user's message
     user_message = update.message.text
+    update_time = update.message.date
+    
+    # Add to cache
+    MESSAGE_CACHE.add_message(user_message, update_time)
 
     # Send the message to the OpenAI API (fine-tuned model)
     try:
+        context = [{
+            "role": "system",
+            "content": CONFIG.model.prompt,
+        }]
+        context.extend([
+            {"role": "user", "content": msg}
+            for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG.serving.max_messages_in_memory)
+        ])
+        context.append({"role": "user", "content": user_message})
         response = OPENAI_CLIENT.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": user_message}],
-            max_tokens=150,
+            model=CONFIG.model.name,
+            messages=context,
+            max_tokens=300,
             n=1,
             stop=None,
             temperature=0.7,
@@ -44,10 +67,10 @@ def main():
     # Initialize the application asynchronously
 
     # Create a filter for private chats that excludes commands
-    private_text_filter = filters.ChatType.PRIVATE & filters.TEXT & ~filters.COMMAND
+    text_filter = filters.TEXT & ~filters.COMMAND
 
     # Add a message handler that only responds to text messages in private chats
-    app.add_handler(MessageHandler(private_text_filter, handle_message))
+    app.add_handler(MessageHandler(text_filter, handle_message))
 
     # Start the bot with polling (this will keep the bot running)
     app.run_polling()
