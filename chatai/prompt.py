@@ -3,15 +3,15 @@ from type_names import ChatMessage, CompletionMessage
 
 
 USERNAME_TO_DISPLAY_NAME = {
-    "@sanchar13": "Александр Соболь",
-    "@yolo322": "Андрей Гайбун",
-    "@ushanov_dmitriy": "Дмитрий Ушанов",
-    "@vgrigorash": "Виталий Григораш",
-    "@ZEMUSHKA": "Андрей Зимовнов",
-    "@svyatslv": "Святослав Юшин",
-    "@korolpiratov": "Евгения Пономаренко",
-    "@bsharchilev": "Борис Шарчилев",
-    "@boggeyman_ai_bot": "Бугимен",
+    "sanchar13": "Александр Соболь",
+    "yolo322": "Андрей Гайбун",
+    "ushanov_dmitriy": "Дмитрий Ушанов",
+    "vgrigorash": "Виталий Григораш",
+    "ZEMUSHKA": "Андрей Зимовнов",
+    "svyatslv": "Святослав Юшин",
+    "korolpiratov": "Евгения Пономаренко",
+    "bsharchilev": "Борис Шарчилев",
+    "boggeyman_ai_bot": "Бугимен",
 }
 
 class Prompt:
