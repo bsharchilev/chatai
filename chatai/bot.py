@@ -42,7 +42,7 @@ async def handle_message(update: Update, context):
             for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG["serving"]["max_messages_in_memory"])
         ])
         context.append({"role": "user", "content": user_message})
-        print("f2")
+        print(context)
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
             messages=context,
@@ -61,8 +61,8 @@ async def handle_message(update: Update, context):
 
     except Exception as e:
         # Optional: Log the error for debugging
-        print(f"Error: {traceback.format_exc()}")
-        await update.message.reply_text("Извините, я обосрался.")
+        print(f"Error: {e}")
+        await update.message.reply_text(traceback.format_exc())
 
 # Main function to start the bot
 def main():
