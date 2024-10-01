@@ -1,6 +1,7 @@
 import asyncio
 import os
 import yaml
+import traceback
 from openai import OpenAI
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
@@ -60,7 +61,7 @@ async def handle_message(update: Update, context):
 
     except Exception as e:
         # Optional: Log the error for debugging
-        print(f"Error: {e}")
+        print(f"Error: {traceback.format_exc()}")
         await update.message.reply_text("Извините, я обосрался.")
 
 # Main function to start the bot
