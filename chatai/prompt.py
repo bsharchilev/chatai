@@ -11,6 +11,7 @@ USERNAME_TO_DISPLAY_NAME = {
     "@svyatslv": "Святослав Юшин",
     "@korolpiratov": "Евгения Пономаренко",
     "@bsharchilev": "Борис Шарчилев",
+    "@boggeyman_ai_bot": "Бугимен",
 }
 
 class Prompt:
