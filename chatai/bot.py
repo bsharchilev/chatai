@@ -18,7 +18,7 @@ with open("config.yaml", "r") as f:
     CONFIG = yaml.safe_load(f)
     
 # Remember messages to feed as context
-MESSAGE_CACHE = MessageCache(CONFIG.serving.max_messages_in_memory)
+MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 
 # Function to handle user messages
 async def handle_message(update: Update, context):
