@@ -66,11 +66,11 @@ async def handle_message(update: Update, context):
 def should_respond(update: Update) -> bool:
     if update.message.chat.type == "private":
         return True
-    if message.entities:
-        for entity in message.entities:
+    if update.message.entities:
+        for entity in update.message.entities:
             # Check for username mentions using the `mention` entity type
             if entity.type == "mention":
-                mentioned_username = message.text[entity.offset:entity.offset + entity.length]
+                mentioned_username = update.message.text[entity.offset:entity.offset + entity.length]
                 if mentioned_username == "@boggeyman_ai_bot":
                     return True
     return False
