@@ -1,5 +1,5 @@
 from typing import Dict, List
-from types import ChatMessage, CompletionMessage
+from type_hints import ChatMessage, CompletionMessage
 
 
 USERNAME_TO_DISPLAY_NAME = {
