@@ -33,7 +33,7 @@ async def handle_message(update: Update, context):
     try:
         context = [{
             "role": "system",
-            "content": CONFIG.model.prompt,
+            "content": os.getenv("CHATAI_PROMPT"),
         }]
         context.extend([
             {"role": "user", "content": msg}
