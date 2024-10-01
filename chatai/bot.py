@@ -37,11 +37,11 @@ async def handle_message(update: Update, context):
         }]
         context.extend([
             {"role": "user", "content": msg}
-            for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG.serving.max_messages_in_memory)
+            for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG["serving"]["max_messages_in_memory"])
         ])
         context.append({"role": "user", "content": user_message})
         response = OPENAI_CLIENT.chat.completions.create(
-            model=CONFIG.model.name,
+            model=CONFIG["model"]["name"],
             messages=context,
             max_tokens=300,
             n=1,
