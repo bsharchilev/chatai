@@ -31,6 +31,7 @@ async def handle_message(update: Update, context):
 
     # Send the message to the OpenAI API (fine-tuned model)
     try:
+        print("f1")
         context = [{
             "role": "system",
             "content": os.getenv("CHATAI_PROMPT"),
@@ -40,6 +41,7 @@ async def handle_message(update: Update, context):
             for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG["serving"]["max_messages_in_memory"])
         ])
         context.append({"role": "user", "content": user_message})
+        print("f2")
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
             messages=context,
@@ -48,8 +50,10 @@ async def handle_message(update: Update, context):
             stop=None,
             temperature=0.7,
         )
+        print("f3")
         # Get the response text
         gpt_response = response.choices[0].message.content.strip()
+        print("f4")
 
         # Send the response back to the user
         await update.message.reply_text(gpt_response)
