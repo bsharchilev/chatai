@@ -44,7 +44,7 @@ function install_python {
     echo_info "Updating system and installing Python and pip..."
     sudo apt update
     sudo apt upgrade -y
-    sudo apt install -y python3 python3-pip python3-venv
+    sudo apt install -y python3 python3-pip python3-venv git
 }
 
 # Function to create and activate a virtual environment

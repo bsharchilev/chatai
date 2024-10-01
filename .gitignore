@@ -1,2 +1,4 @@
 chatai-env
 .env
+__pycache__
+prompt.txt
