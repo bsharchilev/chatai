@@ -28,11 +28,10 @@ async def handle_message(update: Update, context):
     update_time = update.message.date
     
     # Add to cache
-    MESSAGE_CACHE.add_message(user_message, update_time)
+    MESSAGE_CACHE.add_message(user_message, update_time.timestamp())
 
     # Send the message to the OpenAI API (fine-tuned model)
     try:
-        print("f1")
         context = [{
             "role": "system",
             "content": os.getenv("CHATAI_PROMPT"),
@@ -41,7 +40,6 @@ async def handle_message(update: Update, context):
             {"role": "user", "content": msg}
             for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG["serving"]["max_messages_in_memory"])
         ])
-        context.append({"role": "user", "content": user_message})
         print(context)
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
