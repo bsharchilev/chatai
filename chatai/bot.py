@@ -7,6 +7,8 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
 
 from util import MessageCache
+from types import ChatMessage
+from prompt import Prompt
 
 # Set up OpenAI client
 OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -24,28 +26,24 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 # Function to handle user messages
 async def handle_message(update: Update, context):
     # Get the user's message
-    user_message = update.message.text
-    update_time = update.message.date
+    chat_message = ChatMessage(
+        update.message.from.username,
+        update.message.text,
+        update.message.date.timestamp(),
+    )
     
     # Add to cache
-    MESSAGE_CACHE.add_message(user_message, update_time.timestamp())
+    MESSAGE_CACHE.add_message(chat_message)
 
     # Send the message to the OpenAI API (fine-tuned model)
     try:
-        with open("prompt.txt", "r") as f:
-            prompt = f.read()
-        context = [{
-            "role": "system",
-            "content": prompt,
-        }]
-        context.extend([
-            {"role": "user", "content": msg[1]}
-            for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG["serving"]["max_messages_in_memory"])
-        ])
-        # print(context)
+        prompt = Prompt("prompt.txt")
+        prev_messages = MESSAGE_CACHE.get_last_n_messages(
+            CONFIG["serving"]["max_messages_in_memory"],
+        )
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
-            messages=context,
+            messages=prompt.generate(prev_messages),
             max_tokens=300,
             n=1,
             stop=None,
