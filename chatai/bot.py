@@ -25,6 +25,9 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 
 # Function to handle user messages
 async def handle_message(update: Update, context):
+    if not should_respond(update):
+        return
+        
     # Get the user's message
     chat_message = ChatMessage(
         update.message.from_user.username,
@@ -59,6 +62,18 @@ async def handle_message(update: Update, context):
         # Optional: Log the error for debugging
         print(f"Error: {e}")
         await update.message.reply_text(traceback.format_exc())
+        
+def should_respond(update: Update) -> bool:
+    if update.message.chat.type == "private":
+        return True
+    if message.entities:
+        for entity in message.entities:
+            # Check for username mentions using the `mention` entity type
+            if entity.type == "mention":
+                mentioned_username = message.text[entity.offset:entity.offset + entity.length]
+                if mentioned_username == "@boggeyman_ai_bot":
+                    return True
+    return False
 
 # Main function to start the bot
 def main():
