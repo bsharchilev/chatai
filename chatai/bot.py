@@ -26,6 +26,7 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 # Function to handle user messages
 async def handle_message(update: Update, context):
     # Get the user's message
+    print(update.message)
     chat_message = ChatMessage(
         update.message.from.username,
         update.message.text,
