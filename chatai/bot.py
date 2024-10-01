@@ -32,9 +32,11 @@ async def handle_message(update: Update, context):
 
     # Send the message to the OpenAI API (fine-tuned model)
     try:
+        with open("prompt.txt", "r") as f:
+            prompt = f.read()
         context = [{
             "role": "system",
-            "content": os.getenv("CHATAI_PROMPT"),
+            "content": prompt,
         }]
         context.extend([
             {"role": "user", "content": msg[1]}
