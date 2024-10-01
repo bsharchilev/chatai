@@ -4,7 +4,7 @@ import time
 from typing import List, Tuple
 from itertools import islice
 
-from types import ChatMessage
+from type_names import ChatMessage
 
 class MessageCache:
     def __init__(self, max_size: int):
