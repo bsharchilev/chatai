@@ -6,6 +6,7 @@ from typing import TypedDict
 class ChatMessage:
     username: str
     text: str
+    unixtime: int
     
 class CompletionMessage(TypedDict):
     role: str
