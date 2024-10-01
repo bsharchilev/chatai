@@ -37,7 +37,7 @@ async def handle_message(update: Update, context):
             "content": os.getenv("CHATAI_PROMPT"),
         }]
         context.extend([
-            {"role": "user", "content": msg}
+            {"role": "user", "content": msg[1]}
             for msg in MESSAGE_CACHE.get_last_n_messages(CONFIG["serving"]["max_messages_in_memory"])
         ])
         print(context)
