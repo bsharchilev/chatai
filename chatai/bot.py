@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
 
 from util import MessageCache
-from types import ChatMessage
+from type_hints import ChatMessage
 from prompt import Prompt
 
 # Set up OpenAI client
