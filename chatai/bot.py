@@ -50,6 +50,9 @@ async def handle_message(update: Update, context):
         prev_messages = MESSAGE_CACHE.get_last_n_messages(
             CONFIG["serving"]["max_messages_in_memory"],
         )
+        if update.message.text == "!контекст":
+            await update.message.reply_text(str(prompt.generate(prev_messages)))
+            return
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
             messages=prompt.generate(prev_messages),
