@@ -7,7 +7,7 @@ class ChatMessage:
     username: str
     text: str
     unixtime: int
-    reply_to_message: Optional['ChatMessage']
+    reply_to_message: Optional['ChatMessage'] = None
     
 class CompletionMessage(TypedDict):
     role: str
