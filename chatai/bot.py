@@ -50,7 +50,7 @@ async def handle_message(update: Update, context):
             max_tokens=300,
             n=1,
             stop=None,
-            temperature=0.6,
+            temperature=0.7,
         )
         # Get the response text
         gpt_response = response.choices[0].message.content.strip()
