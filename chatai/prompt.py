@@ -25,10 +25,19 @@ class Prompt:
             system_prompt = f.read()
         result = [{"role": "system", "content": system_prompt}]
         for message in messages:
-            user = USERNAME_TO_DISPLAY_NAME[message.username]
             role = "assistant" if message.username == "boggeyman_ai_bot" else "user"
-            content = f"(от: {user}) {message.text}"
+            content = self.encode(message)
             result.append({"role": role, "content": content})
         result.append({"role": "system", "content": FOCUS_PROMPT})
         return result
+        
+    def encode(self, message: ChatMessage) -> str:
+        user = USERNAME_TO_DISPLAY_NAME[message.username]
+        user_part = f"(от: {user}) "
+        
+        reply_part = ""
+        if message.reply_to_message is not None:
+            reply_part = f"(ответ на: {self.encode(message.reply_to_message)}) "
+            
+        return user_part + reply_part + message.text
         
