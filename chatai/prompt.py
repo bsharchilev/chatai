@@ -32,7 +32,7 @@ class Prompt:
         return result
         
     def encode(self, message: ChatMessage) -> str:
-        user = USERNAME_TO_DISPLAY_NAME[message.username]
+        user = USERNAME_TO_DISPLAY_NAME.get(message.username, "Незнакомец")
         user_part = f"(от: {user}) "
         
         reply_part = ""
