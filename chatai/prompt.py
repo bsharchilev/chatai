@@ -14,7 +14,7 @@ USERNAME_TO_DISPLAY_NAME = {
     "boggeyman_ai_bot": "Бугимен",
 }
 
-FOCUS_PROMPT = "Always respond ONLY to the last user message. Only use prior user messages if it is very relevant. Only use the replied to message content if explicitly asked to."
+FOCUS_PROMPT = "Отвечай только на текст последнего сообщения. Если тебя об этом просят, можешь в редких случаях использовать текст сообщения (ответ на: )"
 
 class Prompt:
     def __init__(self, prompt_file_path: str):
