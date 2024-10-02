@@ -3,4 +3,4 @@ model:
   prompt: enter here
 
 serving:
-  max_messages_in_memory: 200
+  max_messages_in_memory: 5
