@@ -14,7 +14,7 @@ USERNAME_TO_DISPLAY_NAME = {
     "boggeyman_ai_bot": "Бугимен",
 }
 
-FOCUS_PROMPT = "Отвечай только на текст последнего сообщения. Если тебя об этом просят, можешь в редких случаях использовать текст сообщения (ответ на: )"
+FOCUS_PROMPT = "Отвечай только на текст последнего сообщения. Иногда сообщение может начинаться с «(от: …)», тут будет написано имя того, кто тебе пишет, используй это, чтобы сделать ответ контекстным, но помимо этого не используй эту часть. Иногда сообщение может начинаться с «(ответ на: …)», в таких случаях сообщение - это ответ на другое сообщение, его текст приведен в этом блоке. Если нужно, используй его, чтобы сделать ответ контекстным. Но твоя основная задача - ответить на основной текст сообщения, для этого используй только текст после вступительных секций «от» и «ответ на»."
 
 class Prompt:
     def __init__(self, prompt_file_path: str):
@@ -23,12 +23,12 @@ class Prompt:
     def generate(self, messages: List[ChatMessage]) -> List[CompletionMessage]:
         with open(self.prompt_file_path, 'r') as f:
             system_prompt = f.read()
+        result.append({"role": "system", "content": FOCUS_PROMPT})
         result = [{"role": "system", "content": system_prompt}]
         for message in messages:
             role = "assistant" if message.username == "boggeyman_ai_bot" else "user"
             content = self.encode(message)
             result.append({"role": role, "content": content})
-        result.append({"role": "system", "content": FOCUS_PROMPT})
         return result
         
     def encode(self, message: ChatMessage) -> str:
