@@ -29,10 +29,16 @@ async def handle_message(update: Update, context):
         return
         
     # Get the user's message
+    reply_to_message = update.message.reply_to_message
     chat_message = ChatMessage(
         update.message.from_user.username,
         update.message.text,
         update.message.date.timestamp(),
+        None if reply_to_message is None else ChatMessage(
+            reply_to_message.from_user.username,
+            reply_to_message.text,
+            reply_to_message.date.timestamp(),
+        )
     )
     
     # Add to cache
