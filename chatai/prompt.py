@@ -14,7 +14,7 @@ USERNAME_TO_DISPLAY_NAME = {
     "boggeyman_ai_bot": "Бугимен",
 }
 
-FOCUS_PROMPT = "Отвечай на последнее пользовательское сообщение и не зацикливайся на предыдущих. Используй их только при необходимости, когда нужно знать контекст текущего разговора."
+FOCUS_PROMPT = "Always respond to the last user message. Only use prior user messages if explicitly needed for the topic at hand."
 
 class Prompt:
     def __init__(self, prompt_file_path: str):
@@ -24,10 +24,11 @@ class Prompt:
         with open(self.prompt_file_path, 'r') as f:
             system_prompt = f.read()
         result = [{"role": "system", "content": system_prompt}]
-        result.append({"role": "system", "content": FOCUS_PROMPT})
         for message in messages:
             user = USERNAME_TO_DISPLAY_NAME[message.username]
+            role = "assistant" if message.username == "boggeyman_ai_bot" else "user"
             content = f"(от: {user}) {message.text}"
-            result.append({"role": "user", "content": content})
+            result.append({"role": role, "content": content})
+        result.append({"role": "system", "content": FOCUS_PROMPT})
         return result
         
