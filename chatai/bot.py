@@ -45,7 +45,15 @@ async def handle_message(update: Update, context: CallbackContext):
             await update.message.reply_text(str(prompt.generate(prev_messages)[1:]))
             return
         if "!debug" in (update.message.caption or ""):
-            await update.message.reply_text(str(prompt.generate(prev_messages)))
+            msgs = prompt.generate(prev_messages)
+            for m in msgs:
+                if isinstance(m["content"], str):
+                    continue
+                for c in m["content"]:
+                    if c["type"] == "text":
+                        continue
+                    c["image_url"]["url"] = str(type(c["image_url"]["url"]))
+            await update.message.reply_text(str(msgs))
             return
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
