@@ -86,7 +86,7 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
     if message.reply_to_message is not None:
         with message.reply_to_message._unfrozen():
             message.reply_to_message.reply_to_message = None
-        parsed_reply = parse_message(message.reply_to_message, context)
+        parsed_reply = await parse_message(message.reply_to_message, context)
 
     text = message.text or message.caption or ""
 
