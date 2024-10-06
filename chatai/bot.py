@@ -58,29 +58,11 @@ async def handle_message(update: Update, context: CallbackContext):
             print(str(msgs))
             await update.message.reply_text(str(msgs))
             return
-        content = [
-      {
-        "role": "user",
-        "content": [
-          {
-            "type": "text",
-            "text": "What'\''s in this image?"
-          },
-          {
-            "type": "image_url",
-            "image_url": {
-              "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
-            }
-          }
-        ]
-      }
-    ]
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
-            messages=[{"role": "user", "content": [{"type": "text", "text": "What'\''s in this image?"}, {"type": "image_url", "image_url": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"}}]}],
-            max_tokens=2100,
+            messages=prompt.generate(prev_messages),
+            max_tokens=300,
             n=1,
-            stop=None,
             temperature=0.7,
         )
         # Get the response text
