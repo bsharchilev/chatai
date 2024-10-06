@@ -79,10 +79,11 @@ def should_respond(update: Update) -> bool:
 def parse_message(message: Message) -> ChatMessage:
     parsed_reply = None
     if message.reply_to_message is not None:
-        message.reply_to_message.reply_to_message = None
+        with message.reply_to_message._unfrozen():
+            message.reply_to_message.reply_to_message = None
         parsed_reply = parse_message(message.reply_to_message)
 
-    text = message.text or message.caption
+    text = message.text or message.caption or ""
     return ChatMessage(
         message.from_user.username,
         text,
