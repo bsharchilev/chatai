@@ -24,9 +24,7 @@ class Prompt:
     def generate(self, messages: List[ChatMessage]) -> List[CompletionMessage]:
         with open(self.prompt_file_path, 'r') as f:
             system_prompt = f.read()
-        result = [{"role": "system", "content": system_prompt}]
-        result.append({"role": "system", "content": FOCUS_PROMPT})
-        result = []
+        result = [{"role": "system", "content": system_prompt}, {"role": "system", "content": FOCUS_PROMPT}]
         for message in messages:
             role = "assistant" if message.username == "boggeyman_ai_bot" else "user"
             content = self.encode(message)
