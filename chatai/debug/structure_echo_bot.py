@@ -12,7 +12,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_STRUCTURE_ECHO_BOT_TOKEN")
 async def handle_message(update: Update, context):
     try:
         formatted_update = yaml.dump(update, default_flow_style=False)
-        await update.message.reply_text(str(update))
+        await update.message.reply_text(formatted_update)
     except Exception as e:
         # Optional: Log the error for debugging
         print(f"Error: {e}")
