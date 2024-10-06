@@ -26,10 +26,10 @@ def main():
     # Initialize the application asynchronously
 
     # Create a filter for private chats that excludes commands
-    text_filter = filters.TEXT & ~filters.COMMAND
+    filter = ~filters.COMMAND
 
     # Add a message handler that only responds to text messages in private chats
-    app.add_handler(MessageHandler(text_filter, handle_message))
+    app.add_handler(MessageHandler(filter, handle_message))
 
     # Start the bot with polling (this will keep the bot running)
     app.run_polling()
