@@ -57,7 +57,7 @@ class Prompt:
         if image is not None:
             return [
                 {"type": "text", "text": text},
-                {"type": "image_url", "image_url": image}
+                # {"type": "image_url", "image_url": image}
             ]
         else:
             return text
