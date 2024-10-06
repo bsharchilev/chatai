@@ -12,7 +12,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_STRUCTURE_ECHO_BOT_TOKEN")
 # Function to handle user messages
 async def handle_message(update: Update, context):
     try:
-        await update.message.reply_text(json.dumps(update, indent=4))
+        await update.message.reply_text(json.dumps(update.to_dict(), indent=4))
     except Exception as e:
         # Optional: Log the error for debugging
         print(f"Error: {e}")
