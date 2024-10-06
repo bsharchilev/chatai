@@ -113,7 +113,7 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
         photo = list(message.photo)[-1]  # Get the largest size
         file = await context.bot.get_file(photo.file_id)
         image_bytes = await file.download_as_bytearray()
-        encoded_image = "https://icons.iconarchive.com/icons/paomedia/small-n-flat/256/sign-check-icon.png"
+        encoded_image = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
         print('done encoding')
     return ChatMessage(
         message.from_user.username,
