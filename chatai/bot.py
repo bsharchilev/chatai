@@ -44,6 +44,9 @@ async def handle_message(update: Update, context: CallbackContext):
         if update.message.text == "!контекст":
             await update.message.reply_text(str(prompt.generate(prev_messages)[1:]))
             return
+        if "!debug" in update.message.caption:
+            await update.message.reply_text(str(prompt.generate(prev_messages)))
+            return
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
             messages=prompt.generate(prev_messages),
