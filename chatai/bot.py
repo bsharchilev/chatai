@@ -69,14 +69,19 @@ def should_respond(update: Update) -> bool:
     if update.message.reply_to_message is not None:
         if update.message.reply_to_message.from_user.username == "boggeyman_ai_bot":
             return True
-    if update.message.entities:
-        for entity in update.message.entities:
-            # Check for username mentions using the `mention` entity type
-            if entity.type == "mention":
-                mentioned_username = update.message.text[entity.offset:entity.offset + entity.length]
-                if mentioned_username == "@boggeyman_ai_bot":
-                    return True
+    if update.message.entities and has_bot_mention(update.message.text, update.message.entities):
+        return True
+    if update.message.caption_entities and has_bot_mention(update.message.caption, update.message.caption_entities):
+        return True
     return False
+
+def has_bot_mention(text, entities) -> bool:
+    for entity in entities:
+        # Check for username mentions using the `mention` entity type
+        if entity.type == "mention":
+            mentioned_username = text[entity.offset:entity.offset + entity.length]
+            if mentioned_username == "@boggeyman_ai_bot":
+                return True
 
 async def parse_message(message: Message, context: CallbackContext) -> ChatMessage:
     parsed_reply = None
