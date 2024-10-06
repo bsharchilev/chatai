@@ -30,6 +30,7 @@ async def handle_message(update: Update, context: CallbackContext):
         
     # Get the user's message
     chat_message = await parse_message(update.message, context)
+    print(str(chat_message))
     
     # Add to cache
     MESSAGE_CACHE.add_message(chat_message)
@@ -89,10 +90,12 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
     # Get the list of photos (Telegram sends different sizes, choose the highest resolution)
     encoded_image = None
     if message.photo is not None and len(message.photo) > 0:
+        print('encoding image')
         photo = list(message.photo)[-1]  # Get the largest size
         file = await context.bot.get_file(photo.file_id)
         image_bytes = await file.download_as_bytearray()
         encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+        print('done encoding')
     return ChatMessage(
         message.from_user.username,
         text,
