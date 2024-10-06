@@ -53,7 +53,7 @@ class Prompt:
         text = user_part + reply_part + message.text
         image = reply_image
         if message.image_b64_encoded is not None:
-            image = {"url": f"data:image/jpeg;base64,{message.image_b64_encoded}"}
+            image = {"url": message.image_b64_encoded}
         if image is not None:
             return [
                 {"type": "text", "text": text},
