@@ -46,15 +46,15 @@ async def handle_message(update: Update, context: CallbackContext):
             return
         if "!debug" in (update.message.caption or ""):
             msgs = prompt.generate(prev_messages)
-            for m in msgs:
-                if isinstance(m["content"], str):
-                    m["content"] = str(type(m["content"]))
-                    continue
-                for c in m["content"]:
-                    if c["type"] == "text":
-                        c["text"] = str(type(c["text"]))
-                        continue
-                    c["image_url"]["url"] = str(type(c["image_url"]["url"]))
+            # for m in msgs:
+            #     if isinstance(m["content"], str):
+            #         m["content"] = str(type(m["content"]))
+            #         continue
+            #     for c in m["content"]:
+            #         if c["type"] == "text":
+            #             c["text"] = str(type(c["text"]))
+            #             continue
+            #         c["image_url"]["url"] = str(type(c["image_url"]["url"]))
             print(str(msgs))
             await update.message.reply_text(str(msgs))
             return
