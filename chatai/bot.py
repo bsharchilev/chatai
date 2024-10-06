@@ -79,9 +79,9 @@ async def handle_message(update: Update, context: CallbackContext):
             model=CONFIG["model"]["name"],
             messages=[{"role": "user", "content": [{"type": "text", "text": "What'\''s in this image?"}, {"type": "image_url", "image_url": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"}}]}],
             max_tokens=2100,
-            # n=1,
+            n=1,
             # stop=None,
-            # temperature=0.7,
+            temperature=0.7,
         )
         # Get the response text
         gpt_response = response.choices[0].message.content.strip()
