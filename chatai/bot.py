@@ -53,6 +53,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     if c["type"] == "text":
                         continue
                     c["image_url"]["url"] = str(type(c["image_url"]["url"]))
+            print(str(msgs))
             await update.message.reply_text(str(msgs))
             return
         response = OPENAI_CLIENT.chat.completions.create(
