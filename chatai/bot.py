@@ -1,9 +1,8 @@
-import asyncio
 import os
 import yaml
 import traceback
 from openai import OpenAI
-from telegram import Update
+from telegram import Update, Message
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
 
 from util import MessageCache
@@ -29,17 +28,7 @@ async def handle_message(update: Update, context):
         return
         
     # Get the user's message
-    reply_to_message = update.message.reply_to_message
-    chat_message = ChatMessage(
-        update.message.from_user.username,
-        update.message.text,
-        update.message.date.timestamp(),
-        None if reply_to_message is None else ChatMessage(
-            reply_to_message.from_user.username,
-            reply_to_message.text,
-            reply_to_message.date.timestamp(),
-        )
-    )
+    chat_message = parse_message(update.message)
     
     # Add to cache
     MESSAGE_CACHE.add_message(chat_message)
@@ -87,6 +76,20 @@ def should_respond(update: Update) -> bool:
                     return True
     return False
 
+def parse_message(message: Message) -> ChatMessage:
+    parsed_reply = None
+    if message.reply_to_message is not None:
+        message.reply_to_message.reply_to_message = None
+        parsed_reply = parse_message(message.reply_to_message)
+
+    text = message.text or message.caption
+    return ChatMessage(
+        message.from_user.username,
+        text,
+        message.date.timestamp(),
+        parsed_reply,
+    )
+
 # Main function to start the bot
 def main():
     # Initialize the bot with your Telegram token
@@ -95,10 +98,10 @@ def main():
     # Initialize the application asynchronously
 
     # Create a filter for private chats that excludes commands
-    text_filter = filters.TEXT & ~filters.COMMAND
+    filt = ~filters.COMMAND
 
     # Add a message handler that only responds to text messages in private chats
-    app.add_handler(MessageHandler(text_filter, handle_message))
+    app.add_handler(MessageHandler(filt, handle_message))
 
     # Start the bot with polling (this will keep the bot running)
     app.run_polling()
