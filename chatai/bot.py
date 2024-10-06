@@ -88,7 +88,7 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
 
     # Get the list of photos (Telegram sends different sizes, choose the highest resolution)
     encoded_image = None
-    if message.photo is not None:
+    if message.photo is not None and len(message.photo) > 0:
         photo = list(message.photo)[-1]  # Get the largest size
         file = await context.bot.get_file(photo.file_id)
         image_bytes = await file.download_as_bytearray()
