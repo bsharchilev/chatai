@@ -30,8 +30,7 @@ async def handle_message(update: Update, context: CallbackContext):
         
     # Get the user's message
     chat_message = await parse_message(update.message, context)
-    print(str(chat_message))
-    
+
     # Add to cache
     MESSAGE_CACHE.add_message(chat_message)
 
@@ -43,20 +42,6 @@ async def handle_message(update: Update, context: CallbackContext):
         )
         if update.message.text == "!контекст":
             await update.message.reply_text(str(prompt.generate(prev_messages)[1:]))
-            return
-        if "!debug" in (update.message.caption or ""):
-            msgs = prompt.generate(prev_messages)
-            # for m in msgs:
-            #     if isinstance(m["content"], str):
-            #         m["content"] = str(type(m["content"]))
-            #         continue
-            #     for c in m["content"]:
-            #         if c["type"] == "text":
-            #             c["text"] = str(type(c["text"]))
-            #             continue
-            #         c["image_url"]["url"] = str(type(c["image_url"]["url"]))
-            print(str(msgs))
-            await update.message.reply_text(str(msgs))
             return
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
@@ -108,12 +93,10 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
     # Get the list of photos (Telegram sends different sizes, choose the highest resolution)
     encoded_image = None
     if message.photo is not None and len(message.photo) > 0:
-        print('encoding image')
         photo = list(message.photo)[-1]  # Get the largest size
         file = await context.bot.get_file(photo.file_id)
         image_bytes = await file.download_as_bytearray()
         encoded_image = base64.b64encode(image_bytes).decode("utf-8")
-        print('done encoding')
     return ChatMessage(
         message.from_user.username,
         text,

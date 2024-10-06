@@ -50,14 +50,18 @@ class Prompt:
             reply_part = f"(ответ на: {reply_part})"
 
         text = user_part + reply_part + message.text
-        image = reply_image
+        images = []
+        if reply_image is not None:
+            images.append(reply_image)
         if message.image_b64_encoded is not None:
-            image = {"url": f"data:image/jpeg;base64,{message.image_b64_encoded}"}
-        if image is not None:
-            return [
-                {"type": "text", "text": text},
-                {"type": "image_url", "image_url": image}
-            ]
+            images.append({"url": f"data:image/jpeg;base64,{message.image_b64_encoded}"})
+        if len(images) > 0 is not None:
+            result = []
+            if len(text) > 0:
+                result.append({"type": "text", "text": text})
+            for image in images:
+                result.append({"type": "image_url", "image_url": image})
+            return result
         else:
             return text
         
