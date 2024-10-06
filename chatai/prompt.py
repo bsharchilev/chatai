@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from chatai.type_names import ChatMessage, CompletionMessage, TypedContent
+from type_names import ChatMessage, CompletionMessage, TypedContent
 
 
 USERNAME_TO_DISPLAY_NAME = {
