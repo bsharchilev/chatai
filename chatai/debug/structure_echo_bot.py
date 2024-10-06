@@ -1,6 +1,6 @@
 import os
 import traceback
-import yaml
+import json
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
 from pprint import pformat
@@ -12,7 +12,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_STRUCTURE_ECHO_BOT_TOKEN")
 # Function to handle user messages
 async def handle_message(update: Update, context):
     try:
-        await update.message.reply_text(pformat(update))
+        await update.message.reply_text(json.dumps(update, indent=4))
     except Exception as e:
         # Optional: Log the error for debugging
         print(f"Error: {e}")
