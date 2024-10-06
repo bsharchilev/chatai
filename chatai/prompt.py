@@ -55,7 +55,7 @@ class Prompt:
             images.append(reply_image)
         if message.image_b64_encoded is not None:
             images.append({"url": f"data:image/jpeg;base64,{message.image_b64_encoded}"})
-        if len(images) > 0 is not None:
+        if len(images) > 0:
             result = []
             if len(text) > 0:
                 result.append({"type": "text", "text": text})
