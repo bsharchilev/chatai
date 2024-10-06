@@ -61,7 +61,7 @@ async def handle_message(update: Update, context: CallbackContext):
         response = OPENAI_CLIENT.chat.completions.create(
             model=CONFIG["model"]["name"],
             messages=prompt.generate(prev_messages),
-            max_tokens=300,
+            max_tokens=2100,
             n=1,
             stop=None,
             temperature=0.7,
