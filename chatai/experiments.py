@@ -2,7 +2,7 @@ import wandb
 import time
 import openai
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, List
 
 
 @dataclass
@@ -40,9 +40,8 @@ class OpenAIExperiments:
           # include a system message in each
           # include all user and assistant messages up to this point
           # generate new response, upload to W&B
-
-        val_dataset_id = self._retrieve_or_generate_dataset(config.test_dataset, config)
-        self._generate_test_predictions(val_dataset_id, result.fine_tuned_model)
+        val_dataset = self._retrieve_or_generate_dataset(config.test_dataset, config)
+        self._generate_test_predictions(val_dataset, result.fine_tuned_model, config.project_id, config.experiment_id)
 
     def _retrieve_or_generate_dataset(self, dataset_params: DatasetParams, config: ExperimentConfig) -> str:
         if dataset_params.existing_dataset_id is not None and self._dataset_exists(dataset_params.existing_dataset_id):
@@ -105,48 +104,59 @@ class OpenAIExperiments:
 
         return status
 
-    def _generate_test_predictions(self, dataset_id: str, model_id: str):
-        print("Generating predictions for validation dataset: %s", dataset_id)
+    def _generate_test_predictions(
+            self,
+            validation_dataset: List[Dict[str, ...]],
+            model_id: str,
+            wandb_project_id: str,
+            wandb_experiment_id: str,
+    ):
+        print("Generating predictions for validation dataset")
+
+        run = wandb.init(project=wandb_project_id, name=wandb_experiment_id)
+
+        table = wandb.Table(columns=[
+            "Conversation ID",
+            "Message ID",
+            "Role",
+            "Content (original)",
+            "Content (generated)"
+        ])
 
         try:
-            # Load the validation dataset
-            validation_data = list(self._openai_client.files.content(dataset_id).iter_lines())
-
-            # Initialize completions list
-            completions = []
+            predictions = []
 
             # Retrieve the fine-tuned model ID
-            for example in validation_data:
-                conversation_history = example["messages"]  # Chat history (system, user, assistant messages)
-                true_completion = example["completion"]  # The expected final response
+            for conversation_idx, conversation in enumerate(validation_dataset):
+                original_messages = conversation["messages"]
+                generated_completions = []
 
+                for message_idx, message in enumerate(original_messages):
+                    if message["role"] == "assistant":
+                        # Call the OpenAI API to generate the assistant's next response
+                        response = self._openai_client.chat.completions.create(
+                            model=model_id,
+                            messages=generated_completions,  # Entire conversation history up to the point of prediction
+                            max_tokens=150,
+                            temperature=0.7
+                        )
+                        generated_completions.append({
+                            "role": "assistant",
+                            "content": response['choices'][0]['message']['content'].strip()
+                        })
+                    else:
+                        generated_completions.append(message)
 
-                # Call the OpenAI API to generate the assistant's next response
-                response = self._openai_client.chat.completions.create(
-                    model=model_id,
-                    messages=conversation_history,  # Entire conversation history up to the point of prediction
-                    max_tokens=150,
-                    temperature=0.7
-                )
+                    generated_message = generated_completions[-1]
+                    table.add_data(
+                        conversation_idx,
+                        message_idx,
+                        generated_message["role"],
+                        message["content"],
+                        generated_message["content"]
+                    )
+                    run.log({"Validation predictions": table})
 
-                # Extract the generated assistant message from the response
-                generated_message = response['choices'][0]['message']['content'].strip()
-
-                # Append the assistant's generated message to the conversation history
-                conversation_history.append({"role": "assistant", "content": generated_message})
-
-                # Store the generated completion, true completion, and conversation history
-                completions.append({
-                    "conversation_history": conversation_history,
-                    "true_completion": true_completion,
-                    "generated_completion": generated_message
-                })
-
-                # Log the completion to W&B
-                wandb.log({
-                    "conversation_history": conversation_history,
-                    "true_completion": true_completion,
-                    "generated_completion": generated_message
-                })
+                predictions.append(generated_completions)
         except Exception as e:
-            print("Error generating chat test predictions: %s", str(e))
+            print("Error generating chat val predictions: %s", str(e))
