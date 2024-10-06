@@ -1,9 +1,10 @@
+import base64
 import os
 import yaml
 import traceback
 from openai import OpenAI
 from telegram import Update, Message
-from telegram.ext import ApplicationBuilder, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
 
 from util import MessageCache
 from type_names import ChatMessage
@@ -23,12 +24,12 @@ with open("config.yaml", "r") as f:
 MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 
 # Function to handle user messages
-async def handle_message(update: Update, context):
+async def handle_message(update: Update, context: CallbackContext):
     if not should_respond(update):
         return
         
     # Get the user's message
-    chat_message = parse_message(update.message)
+    chat_message = await parse_message(update.message, context)
     
     # Add to cache
     MESSAGE_CACHE.add_message(chat_message)
@@ -76,7 +77,7 @@ def should_respond(update: Update) -> bool:
                     return True
     return False
 
-def parse_message(message: Message) -> ChatMessage:
+async def parse_message(message: Message, context: CallbackContext) -> ChatMessage:
     parsed_reply = None
     if message.reply_to_message is not None:
         with message.reply_to_message._unfrozen():
@@ -84,10 +85,19 @@ def parse_message(message: Message) -> ChatMessage:
         parsed_reply = parse_message(message.reply_to_message)
 
     text = message.text or message.caption or ""
+
+    # Get the list of photos (Telegram sends different sizes, choose the highest resolution)
+    encoded_image = None
+    if message.photo is not None:
+        photo = message.photo[-1]  # Get the largest size
+        file = await context.bot.get_file(photo.file_id)
+        image_bytes = await file.download_as_bytearray()
+        encoded_image = base64.b64encode(image_bytes).decode('utf-8')
     return ChatMessage(
         message.from_user.username,
         text,
         message.date.timestamp(),
+        encoded_image,
         parsed_reply,
     )
 

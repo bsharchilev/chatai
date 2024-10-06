@@ -1,5 +1,6 @@
 from typing import Dict, List
-from type_names import ChatMessage, CompletionMessage
+
+from chatai.type_names import ChatMessage, CompletionMessage, TypedContent
 
 
 USERNAME_TO_DISPLAY_NAME = {
@@ -31,13 +32,33 @@ class Prompt:
             result.append({"role": role, "content": content})
         return result
         
-    def encode(self, message: ChatMessage) -> str:
+    def encode(self, message: ChatMessage) -> str | List[TypedContent]:
         user = USERNAME_TO_DISPLAY_NAME.get(message.username, "Незнакомец")
         user_part = f"(от: {user}) "
         
         reply_part = ""
+        reply_image = None
         if message.reply_to_message is not None:
-            reply_part = f"(ответ на: {self.encode(message.reply_to_message)}) "
-            
-        return user_part + reply_part + message.text
+            reply_content = self.encode(message.reply_to_message)
+            if isinstance(reply_content, str):
+                reply_part = reply_content
+            else:
+                for component in reply_content:
+                    if component["type"] == "text":
+                        reply_part = component["text"]
+                    else:
+                        reply_image = component["image_url"]
+            reply_part = f"(ответ на: {reply_part})"
+
+        text = user_part + reply_part + message.text
+        image = reply_image
+        if message.image_b64_encoded is not None:
+            image = {"url": f"data:image/jpeg;base64,{message.image_b64_encoded}"}
+        if image is not None:
+            return [
+                {"type": "text", "text": text},
+                {"type": "image_url", "image_url": image}
+            ]
+        else:
+            return text
         
