@@ -49,6 +49,7 @@ async def handle_message(update: Update, context: CallbackContext):
             for m in msgs:
                 if isinstance(m["content"], str):
                     m["content"] = str(type(m["content"]))
+                    continue
                 for c in m["content"]:
                     if c["type"] == "text":
                         c["text"] = str(type(c["text"]))
