@@ -5,6 +5,7 @@ import traceback
 from openai import OpenAI
 from telegram import Update, Message
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
+from uuid import uuid4
 
 from util import MessageCache
 from type_names import ChatMessage
@@ -25,11 +26,17 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 
 # Function to handle user messages
 async def handle_message(update: Update, context: CallbackContext):
-    if not should_respond(update):
+    if not update.message.entities and not update.message.caption_entities:
         return
         
     # Get the user's message
     chat_message = await parse_message(update.message, context)
+    # Persist in context for future trend extraction
+    context.chat_data[str(uuid4())] = chat_message
+
+    # Abort if should not respond
+    if not should_respond(update):
+        return
 
     # Add to cache
     MESSAGE_CACHE.add_message(chat_message)
