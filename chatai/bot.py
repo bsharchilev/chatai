@@ -31,6 +31,7 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 # Function to handle user messages
 async def handle_message(update: Update, context: CallbackContext):
     try:
+        print(update.message.chat.type, update.message.entities, update.message.caption_entities)
         if not update.message.chat.type == "private" and not update.message.entities and not update.message.caption_entities:
             return
 
