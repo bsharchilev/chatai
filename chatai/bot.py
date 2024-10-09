@@ -18,7 +18,7 @@ OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 # Config
-with open("config.yaml", "r") as f:
+with open("chatai/config.yaml", "r") as f:
     CONFIG = yaml.safe_load(f)
     
 # Remember messages to feed as context
