@@ -148,7 +148,7 @@ def _build_orm(message: ChatMessage, message_id: int, chat_id: int, reply_to_id:
         id=message_id,
         chat_id=chat_id,
         username=message.username,
-        test_type=message.text,
+        text=message.text,
         unixtime=message.unixtime,
         image_b64_encoded=message.image_b64_encoded,
         reply_to_message_id=reply_to_id,
