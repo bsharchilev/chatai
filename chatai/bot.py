@@ -123,7 +123,7 @@ def log_message(message: ChatMessage, update: Update):
             message,
             update.message.id,
             update.effective_chat.id,
-            update.message.reply_to_message.id,
+            update.message.reply_to_message.id if update.message.reply_to_message else None,
         )
         session.add(message_row)
 
