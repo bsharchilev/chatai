@@ -7,7 +7,8 @@ Base = declarative_base()
 class Message(Base):
     __tablename__ = 'messages'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=False)
+    chat_id = Column(Integer, nullable=True)
     username = Column(String, nullable=True)
     text = Column(String, nullable=True)
     unixtime = Column(Integer, nullable=True)
