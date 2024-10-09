@@ -75,6 +75,7 @@ def should_respond(update: Update) -> bool:
     if update.message.chat.type == "private":
         return True
     if update.message.reply_to_message is not None:
+        print(update.message.reply_to_message.from_user.username)
         if update.message.reply_to_message.from_user.username == "boggeyman_ai_bot":
             return True
     if update.message.entities and has_bot_mention(update.message.text, update.message.entities):
