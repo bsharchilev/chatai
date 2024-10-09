@@ -3,13 +3,17 @@ import os
 import yaml
 import traceback
 from openai import OpenAI
+
 from telegram import Update, Message
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
-from uuid import uuid4
+from typing import Optional
+from sqlalchemy.exc import SQLAlchemyError
 
 from chatai.util import MessageCache
 from chatai.type_names import ChatMessage
 from chatai.prompt import Prompt
+from chatai.sql import Session
+from chatai.sql.tables import Message as MessageRow
 
 # Set up OpenAI client
 OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -26,23 +30,22 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 
 # Function to handle user messages
 async def handle_message(update: Update, context: CallbackContext):
-    if not update.message.chat.type == "private" and not update.message.entities and not update.message.caption_entities:
-        return
-        
-    # Get the user's message
-    chat_message = await parse_message(update.message, context)
-    # Persist in context for future trend extraction
-    context.chat_data[str(uuid4())] = chat_message
-
-    # Abort if should not respond
-    if not should_respond(update):
-        return
-
-    # Add to cache
-    MESSAGE_CACHE.add_message(chat_message)
-
-    # Send the message to the OpenAI API (fine-tuned model)
     try:
+        if not update.message.chat.type == "private" and not update.message.entities and not update.message.caption_entities:
+            return
+
+        # Get the user's message
+        chat_message = await parse_message(update.message, context)
+        # Persist in context for future trend extraction
+        # log_message(chat_message, update)
+
+        # Abort if should not respond
+        if not should_respond(update):
+            return
+
+        # Add to cache
+        MESSAGE_CACHE.add_message(chat_message)
+
         prompt = Prompt("chatai/prompt.txt")
         prev_messages = MESSAGE_CACHE.get_last_n_messages(
             CONFIG["serving"]["max_messages_in_memory"],
@@ -67,7 +70,7 @@ async def handle_message(update: Update, context: CallbackContext):
         # Optional: Log the error for debugging
         print(f"Error: {e}")
         await update.message.reply_text(traceback.format_exc())
-        
+
 def should_respond(update: Update) -> bool:
     if update.message.chat.type == "private":
         return True
@@ -107,9 +110,48 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
     return ChatMessage(
         message.from_user.username,
         text,
-        message.date.timestamp(),
+        int(message.date.timestamp()),
         encoded_image,
         parsed_reply,
+    )
+
+def log_message(message: ChatMessage, update: Update):
+    try:
+        session = Session()
+
+        message_row = _build_orm(
+            message,
+            update.message.id,
+            update.effective_chat.id,
+            update.message.reply_to_message.id,
+        )
+        session.add(message_row)
+
+        if message.reply_to_message:
+            reply_message_row = _build_orm(
+                message.reply_to_message,
+                update.message.reply_to_message.id,
+                update.effective_chat.id,
+                None,
+            )
+            session.merge(reply_message_row)
+
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+
+def _build_orm(message: ChatMessage, message_id: int, chat_id: int, reply_to_id: Optional[int]) -> MessageRow:
+    return MessageRow(
+        id=message_id,
+        chat_id=chat_id,
+        username=message.username,
+        test_type=message.text,
+        unixtime=message.unixtime,
+        image_b64_encoded=message.image_b64_encoded,
+        reply_to_message_id=reply_to_id,
     )
 
 # Main function to start the bot
