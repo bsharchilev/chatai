@@ -43,7 +43,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
     # Send the message to the OpenAI API (fine-tuned model)
     try:
-        prompt = Prompt("prompt.txt")
+        prompt = Prompt("chatai/prompt.txt")
         prev_messages = MESSAGE_CACHE.get_last_n_messages(
             CONFIG["serving"]["max_messages_in_memory"],
         )
