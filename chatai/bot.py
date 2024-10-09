@@ -7,9 +7,9 @@ from telegram import Update, Message
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
 from uuid import uuid4
 
-from util import MessageCache
-from type_names import ChatMessage
-from prompt import Prompt
+from chatai.util import MessageCache
+from chatai.type_names import ChatMessage
+from chatai.prompt import Prompt
 
 # Set up OpenAI client
 OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))

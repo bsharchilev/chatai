@@ -1,10 +1,9 @@
 from collections import deque
 import threading
-import time
 from typing import List, Tuple
 from itertools import islice
 
-from type_names import ChatMessage
+from chatai.type_names import ChatMessage
 
 class MessageCache:
     def __init__(self, max_size: int):
