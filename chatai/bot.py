@@ -31,14 +31,13 @@ MESSAGE_CACHE = MessageCache(CONFIG["serving"]["max_messages_in_memory"])
 # Function to handle user messages
 async def handle_message(update: Update, context: CallbackContext):
     try:
-        print(update.message.chat.type, update.message.entities, update.message.caption_entities)
         if not update.message.chat.type == "private" and not update.message.text and not update.message.caption:
             return
 
         # Get the user's message
         chat_message = await parse_message(update.message, context)
         # Persist in context for future trend extraction
-        # log_message(chat_message, update)
+        log_message(chat_message, update)
 
         # Abort if should not respond
         if not should_respond(update):
@@ -76,7 +75,6 @@ def should_respond(update: Update) -> bool:
     if update.message.chat.type == "private":
         return True
     if update.message.reply_to_message is not None:
-        print(update.message.reply_to_message.from_user.username)
         if update.message.reply_to_message.from_user.username == "boggeyman_ai_bot":
             return True
     if update.message.entities and has_bot_mention(update.message.text, update.message.entities):
