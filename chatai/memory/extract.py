@@ -1,10 +1,12 @@
 import os
 import time
 import json
+import pytz
 from dataclasses import dataclass
 from typing import Dict, List
 from sqlalchemy import select, and_
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime, timedelta
 
 from chatai import OPENAI_CLIENT
 from chatai.type_names import ChatMessage
@@ -254,10 +256,22 @@ if __name__ == "__main__":
                                     "Андрей Зимовнов",
                                     "Андрей Гайбун",
                                 ]
+
+    LOOKBACK_DAYS = 5
+    CHAT_ID = -1001783745747
+    MODEL = "gpt-4o-2024-08-06"
+    MAX_TOKENS = 1000
+
+    # Define the Moscow timezone
+    moscow_tz = pytz.timezone('Europe/Moscow')
+    now_moscow = datetime.now(moscow_tz)
+    end_date = now_moscow.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = (now_moscow - timedelta(days=LOOKBACK_DAYS)).replace(hour=0, minute=0, second=0, microsecond=0)
+
     extract_memories(
-        ChatInfo(-1001783745747, names),
-        1728428400,
-        1728601200,
-        "gpt-4o-2024-08-06",
-        1000,
+        ChatInfo(CHAT_ID, names),
+        int(start_date.timestamp()),
+        int(end_date.timestamp()),
+        MODEL,
+        MAX_TOKENS,
     )
