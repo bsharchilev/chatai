@@ -6,7 +6,7 @@ _cron_command = '/home/bsharchilev/chatai/chatai-env/bin/python -m chatai.memory
 def create_cron_job(cron: CronTab):
     if not any(job for job in cron if job.command == _cron_command):
         job = cron.new(command=_cron_command)
-        job.day.every(1)
+        job.setall('1 0 * * *')
         cron.write()
         print("Cron job created")
     else:
