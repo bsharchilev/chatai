@@ -15,6 +15,10 @@ class Message(Base):
     image_b64_encoded = Column(String, nullable=True)
     reply_to_message_id = Column(BigInteger, nullable=True)
 
+    def __repr__(self):
+        fields = {col.name: getattr(self, col.name) for col in self.__table__.columns}
+        return f"<{self.__class__.__name__}({fields})>"
+
 class Memory(Base):
     __tablename__ = 'memories'
 
@@ -25,3 +29,7 @@ class Memory(Base):
     character_name = Column(String, nullable=True)
     fact = Column(String, nullable=True)
     interest_score = Column(Numeric, nullable=True)
+
+    def __repr__(self):
+        fields = {col.name: getattr(self, col.name) for col in self.__table__.columns}
+        return f"<{self.__class__.__name__}({fields})>"
