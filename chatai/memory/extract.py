@@ -39,9 +39,7 @@ def extract_memories(
     )
     print("Encoding messages...")
     chat_messages = encode_messages(message_rows, quoted_message_rows)
-    print(len(chat_messages), chat_messages[-20:])
-    chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m))]
-    print(len(chat_messages))
+    chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m) or ("boggeyman_ai_bot" in m))]
 
     print("Making request...")
     request_id = f"memory_extraction_{chat_info.id}_{start_unixtime_inclusive}_{end_unixtime_exclusive}"
@@ -186,6 +184,7 @@ def make_request(
             "max_tokens": max_tokens,
             "messages": input_messages,
             "response_format": schema,
+            "n": 5,
         }
     }
 
@@ -223,16 +222,18 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
         session = Session()
 
         for row in memories:
-            memories_structs = json.loads(row["response"]["body"]["choices"][0]["message"]["content"])["facts"]
-            for struct in memories_structs:
-                session.add(Memory(
-                    chat_id=chat_id,
-                    start_unixtime=start_unixtime,
-                    end_unixtime=end_unixtime,
-                    character_name=struct["character_name"],
-                    fact=struct["fact"],
-                    interest_score=struct["interest_score"],
-                ))
+            mm = row["response"]["body"]["choices"]
+            for rrow in mm:
+                memories_structs = json.loads(rrow["message"]["content"])["facts"]
+                for struct in memories_structs:
+                    session.add(Memory(
+                        chat_id=chat_id,
+                        start_unixtime=start_unixtime,
+                        end_unixtime=end_unixtime,
+                        character_name=struct["character_name"],
+                        fact=struct["fact"],
+                        interest_score=struct["interest_score"],
+                    ))
         session.commit()
 
     except Exception as e:
