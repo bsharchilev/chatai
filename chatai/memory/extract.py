@@ -254,7 +254,7 @@ if __name__ == "__main__":
                                     "Андрей Гайбун",
                                 ]
     extract_memories(
-        ChatInfo(5, names),
+        ChatInfo(-1001783745747, names),
         1728428400,
         1728601200,
         "gpt-4o-2024-08-06",
