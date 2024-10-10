@@ -2,21 +2,18 @@ import base64
 import os
 import yaml
 import traceback
-from openai import OpenAI
 
 from telegram import Update, Message
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
 from typing import Optional
 from sqlalchemy.exc import SQLAlchemyError
 
+from chatai import OPENAI_CLIENT
 from chatai.util import MessageCache
 from chatai.type_names import ChatMessage
 from chatai.prompt import Prompt
 from chatai.sql import Session
 from chatai.sql.tables import Message as MessageRow
-
-# Set up OpenAI client
-OPENAI_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Define the Telegram bot token
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
