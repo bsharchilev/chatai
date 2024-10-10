@@ -219,8 +219,8 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
     try:
         session = Session()
 
-        for row in memories["body"]["choices"][0]:
-            memories_structs = row["message"]["content"]
+        for row in memories:
+            memories_structs = row["response"]["body"]["choices"][0]["message"]["content"]
             for struct in memories_structs["facts"]:
                 session.add(Memory(
                     chat_id=chat_id,
