@@ -260,7 +260,7 @@ if __name__ == "__main__":
     LOOKBACK_DAYS = 5
     CHAT_ID = -1001783745747
     MODEL = "gpt-4o-2024-08-06"
-    MAX_TOKENS = 1000
+    MAX_TOKENS = 2000
 
     # Define the Moscow timezone
     moscow_tz = pytz.timezone('Europe/Moscow')
