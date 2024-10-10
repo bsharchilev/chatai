@@ -220,7 +220,7 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
         session = Session()
 
         for row in memories:
-            memories_structs = row["response"]["body"]["choices"][0]["message"]["content"]["facts"]
+            memories_structs = json.loads(row["response"]["body"]["choices"][0]["message"]["content"])
             for struct in memories_structs:
                 session.add(Memory(
                     chat_id=chat_id,
@@ -232,7 +232,7 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
                 ))
         session.commit()
 
-    except SQLAlchemyError as e:
+    except Exception as e:
         session.rollback()
         raise e
     finally:
