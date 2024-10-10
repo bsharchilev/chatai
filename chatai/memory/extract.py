@@ -33,7 +33,6 @@ def extract_memories(
 
     print("Reading messages...")
     message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
-    print(str(message_rows[-20:]))
     print("Reading quoted messages...")
     for m in message_rows:
         if not hasattr(m, "reply_to_message_id"):
