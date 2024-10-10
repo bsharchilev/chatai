@@ -220,16 +220,15 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
         session = Session()
 
         for row in memories:
-            memories_structs = json.loads(row["response"]["body"]["choices"][0]["message"]["content"])
+            memories_structs = json.loads(row["response"]["body"]["choices"][0]["message"]["content"])["facts"]
             for struct in memories_structs:
-                structj = json.loads(struct)
                 session.add(Memory(
                     chat_id=chat_id,
                     start_unixtime=start_unixtime,
                     end_unixtime=end_unixtime,
-                    character_name=structj["character_name"],
-                    fact=structj["fact"],
-                    interest_score=structj["interest_score"],
+                    character_name=struct["character_name"],
+                    fact=struct["fact"],
+                    interest_score=struct["interest_score"],
                 ))
         session.commit()
 
