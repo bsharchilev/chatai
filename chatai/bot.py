@@ -2,7 +2,10 @@ import base64
 import os
 import yaml
 import traceback
+import signal
+import atexit
 
+from crontab import CronTab
 from telegram import Update, Message
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
 from typing import Optional
@@ -14,6 +17,7 @@ from chatai.type_names import ChatMessage
 from chatai.prompt import Prompt
 from chatai.sql import Session
 from chatai.sql.tables import Message as MessageRow
+from chatai.memory.schedule import get_shutdown_handler, create_cron_job, remove_cron_job
 
 # Define the Telegram bot token
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -153,19 +157,23 @@ def _build_orm(message: ChatMessage, message_id: int, chat_id: int, reply_to_id:
 
 # Main function to start the bot
 def main():
-    # Initialize the bot with your Telegram token
+    # cron = CronTab(user=True)
+    #
+    # shutdown_handler = get_shutdown_handler(cron)
+    # signal.signal(signal.SIGINT, shutdown_handler)
+    # signal.signal(signal.SIGTERM, shutdown_handler)
+    # atexit.register(remove_cron_job)
+    # create_cron_job(cron)
+
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
-
-    # Initialize the application asynchronously
-
-    # Create a filter for private chats that excludes commands
     filt = ~filters.COMMAND
-
-    # Add a message handler that only responds to text messages in private chats
     app.add_handler(MessageHandler(filt, handle_message))
 
-    # Start the bot with polling (this will keep the bot running)
-    app.run_polling()
+    try:
+        app.run_polling()
+    except Exception as e:
+        print(f"Error: {e}")
+        # remove_cron_job(cron)
 
 if __name__ == "__main__":
    main()
