@@ -157,13 +157,13 @@ def _build_orm(message: ChatMessage, message_id: int, chat_id: int, reply_to_id:
 
 # Main function to start the bot
 def main():
-    # cron = CronTab(user=True)
-    #
-    # shutdown_handler = get_shutdown_handler(cron)
-    # signal.signal(signal.SIGINT, shutdown_handler)
-    # signal.signal(signal.SIGTERM, shutdown_handler)
-    # atexit.register(remove_cron_job)
-    # create_cron_job(cron)
+    cron = CronTab(user=True)
+
+    shutdown_handler = get_shutdown_handler(cron)
+    signal.signal(signal.SIGINT, shutdown_handler)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+    atexit.register(remove_cron_job)
+    create_cron_job(cron)
 
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     filt = ~filters.COMMAND
