@@ -34,8 +34,9 @@ def extract_memories(
     print("Reading messages...")
     message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
     print("Reading quoted messages...")
-    for m, _ in message_rows:
+    for m in message_rows:
         if not hasattr(m, "username"):
+            print(type(m))
             print(str(m))
     quoted_message_rows = read_messages_by_ids(
         list(set(m.reply_to_message_id for m in message_rows if hasattr(m, "reply_to_message_id")))
