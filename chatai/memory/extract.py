@@ -33,6 +33,7 @@ def extract_memories(
 
     print("Reading messages...")
     message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+    print(message_rows[-20:])
     print("Reading quoted messages...")
     quoted_message_rows = read_messages_by_ids(
         list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
