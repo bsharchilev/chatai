@@ -35,7 +35,7 @@ def extract_memories(
     message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
     print("Reading quoted messages...")
     quoted_message_rows = read_messages_by_ids(
-        list(set(m.reply_to_message_id for m in message_rows if hasattr(m, "reply_to_message_id")))
+        list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
     )
     print("Encoding messages...")
     chat_messages = encode_messages(message_rows, quoted_message_rows)
