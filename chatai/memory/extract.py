@@ -39,6 +39,7 @@ def extract_memories(
     )
     print("Encoding messages...")
     chat_messages = encode_messages(message_rows, quoted_message_rows)
+    chat_messages = [m for m in chat_messages if not ("Бугимен" in m)]
 
     print("Making request...")
     request_id = f"memory_extraction_{chat_info.id}_{start_unixtime_inclusive}_{end_unixtime_exclusive}"
