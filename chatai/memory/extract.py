@@ -34,10 +34,6 @@ def extract_memories(
     print("Reading messages...")
     message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
     print("Reading quoted messages...")
-    for m in message_rows:
-        if not hasattr(m, "username"):
-            print(type(m))
-            print(str(m))
     quoted_message_rows = read_messages_by_ids(
         list(set(m.reply_to_message_id for m in message_rows if hasattr(m, "reply_to_message_id")))
     )
@@ -77,7 +73,7 @@ def read_messages(chat_id: int, start_unixtime_inclusive: int, end_unixtime_excl
                 Message.unixtime < end_unixtime_exclusive,
             )
         )
-        return session.execute(select_statement).all()
+        return session.execute(select_statement).scalars().all()
 
     except SQLAlchemyError as e:
         session.rollback()
@@ -93,7 +89,7 @@ def read_messages_by_ids(ids: List[int]) -> List[Message]:
         select_statement = select(Message).where(
             Message.id.in_(ids)
         )
-        return session.execute(select_statement).all()
+        return session.execute(select_statement).scalars().all()
 
     except SQLAlchemyError as e:
         session.rollback()
