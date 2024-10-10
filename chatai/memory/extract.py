@@ -36,11 +36,11 @@ def extract_memories(
     print(str(message_rows[-20:]))
     print("Reading quoted messages...")
     quoted_message_rows = read_messages_by_ids(
-        list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
+        list(set(m.reply_to_message_id for m in message_rows if hasattr(m, "reply_to_message_id")))
     )
     print("Encoding messages...")
     chat_messages = encode_messages(message_rows, quoted_message_rows)
-    print(len(chat_messages))
+    print(len(chat_messages), chat_messages[-20:])
     chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m))]
     print(len(chat_messages))
 
