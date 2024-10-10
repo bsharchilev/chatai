@@ -104,7 +104,7 @@ def encode_messages(message_rows: List[Message], quoted_messages: List[Message])
     chat_messages = []
     for row in message_rows:
         quoted_message = None
-        if hasattr(row, "reply_to_message_id"):
+        if row.reply_to_message_id:
             quoted_message_row = quoted_message_by_id[row.reply_to_message_id]
             quoted_message = ChatMessage(
                 quoted_message_row.username,
