@@ -6,7 +6,7 @@ _cron_command = "cd /home/bsharchilev/chatai && . chatai-env/bin/activate && . /
 def create_cron_job(cron: CronTab):
     if not any(job for job in cron if job.command == _cron_command):
         job = cron.new(command=_cron_command)
-        job.setall('10 11 * * *')
+        job.setall('1 21 * * *')
         cron.write()
         print("Cron job created")
     else:
