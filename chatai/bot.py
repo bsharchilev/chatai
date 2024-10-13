@@ -47,7 +47,7 @@ async def handle_message(update: Update, context: CallbackContext):
         # Add to cache
         MESSAGE_CACHE.add_message(chat_message)
 
-        prompt = Chat("chatai/prompt.txt")
+        prompt = Chat("chatai/prompt.yaml")
         prev_messages = MESSAGE_CACHE.get_last_n_messages(
             CONFIG["serving"]["max_messages_in_memory"],
         )

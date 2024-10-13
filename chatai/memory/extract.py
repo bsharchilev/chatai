@@ -1,8 +1,10 @@
 import os
 import time
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List
+
 from sqlalchemy import select, and_
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -11,6 +13,7 @@ from chatai.type_names import ChatMessage
 from chatai.sql import Session
 from chatai.sql.tables import Message, Memory
 from chatai.prompt.chat import Chat
+from chatai.prompt.prompt import Prompt, ListSection, MainCharacter
 
 
 @dataclass
@@ -58,7 +61,11 @@ def extract_memories(
     memories = [json.loads(n.strip('\n')) for n in response.text.split('\n')[:-1]]
 
     print("Dumping results...")
-    dump_memories(memories, chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+    memories = dump_memories(memories, chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+
+    print("Exporting prompt...")
+    # export_prompt(memories)
+
 
 def read_messages(chat_id: int, start_unixtime_inclusive: int, end_unixtime_exclusive: int) -> List[Message]:
     try:
@@ -217,23 +224,26 @@ def submit_and_wait_batch_task(client, batch, name):
 
     return client.files.content(b.output_file_id)
 
-def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int):
+def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int) -> List[Memory]:
     try:
         session = Session()
 
+        result = []
         for row in memories:
             mm = row["response"]["body"]["choices"]
             for rrow in mm:
                 memories_structs = json.loads(rrow["message"]["content"])["facts"]
                 for struct in memories_structs:
-                    session.add(Memory(
+                    component = Memory(
                         chat_id=chat_id,
                         start_unixtime=start_unixtime,
                         end_unixtime=end_unixtime,
                         character_name=struct["character_name"],
                         fact=struct["fact"],
                         interest_score=struct["interest_score"],
-                    ))
+                    )
+                    result.append(component)
+                    session.add(component)
         session.commit()
 
     except Exception as e:
@@ -241,7 +251,34 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
         raise e
     finally:
         session.close()
+    return result
 
+def export_prompt(memories: List[Memory]):
+    prompt = Prompt("chatai/prompt.yaml")
+
+    name_to_config: Dict[str, MainCharacter] = {}
+    main_char_list_idx = None
+    for i, component in enumerate(prompt.config):
+        if not isinstance(component, ListSection) or not isinstance(component.items[0], MainCharacter):
+            continue
+        main_char_list_idx = i
+        for char in component.items:
+            c: MainCharacter = char
+            name_to_config[c.name] = c
+
+    name_to_memories = defaultdict(list)
+    for memory in memories:
+        name_to_memories[memory.character_name].append((memory.fact, memory.interest_score))
+    for name in name_to_memories:
+        memories_for_name = name_to_memories[name]
+        memories_for_name = sorted(memories_for_name, key=lambda fact_and_score: -fact_and_score[1])
+        memories_for_name = [mem[0] for mem in memories_for_name]
+        name_to_config[name].recent_facts = memories_for_name
+    prompt.config[main_char_list_idx].items = list(name_to_config.values())
+
+    prompt.save_config("chatai/prompt1.yaml")
+    with open("chatai/prompt1.txt", "w") as f:
+        f.write(prompt.print())
 
 if __name__ == "__main__":
     names = [
