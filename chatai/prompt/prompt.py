@@ -1,6 +1,6 @@
 import yaml
 from abc import abstractmethod, ABCMeta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class PromptSection:
@@ -31,13 +31,46 @@ class Text(PromptSection):
         return Text(config["text"])
 
     def serialize_config(self) -> Dict[str, Any]:
-        return {
-            "type": "text",
-            "text": self.text,
-        }
+        result = dict()
+        result["type"] = "text"
+        result["text"] = self.text
+        return result
+
+class ListSection(PromptSection):
+    def __init__(self, title: str, items: List[PromptSection]):
+        self.title = title
+        self.items = items
+
+    def __str__(self):
+        bullets = "\n\n".join(f"{i + 1}: {str(item)}" for i, item in enumerate(self.items))
+        return \
+            f"""{self.title}
+            
+{bullets}"""
+
+    @staticmethod
+    def parse(config: Dict[str, Any]) -> 'PromptSection':
+        return ListSection(
+            config["title"],
+            Prompt.parse_config(config["items"]),
+        )
+
+    def serialize_config(self) -> Dict[str, Any]:
+        result = dict()
+        result["type"] = "list"
+        result["title"] = self.title
+        result["items"] = [item.serialize_config() for item in self.items]
+        return result
 
 class MainCharacter(PromptSection):
-    def __init__(self, name: str, nickname: str, core_facts: str, recent_facts: str, message_examples: str):
+    def __init__(
+            self,
+            name: str,
+            nickname: str,
+            core_facts: List[str],
+            recent_facts: List[str],
+            message_examples: List[str]
+    ):
         self.name = name
         self.nickname = nickname
         self.core_facts = core_facts
@@ -45,32 +78,39 @@ class MainCharacter(PromptSection):
         self.message_examples = message_examples
 
     def __str__(self):
+        core_facts = "\n".join(f"* {fact}" for fact in self.core_facts)
+        recent_facts = "\n".join(f"* {fact}" for fact in self.recent_facts)
+        message_examples = "\n".join(f"* {message}" for message in self.message_examples)
         return \
-        f"""    {self.name} ({self.nickname})
-        Основные факты:
-        {self.core_facts}
+        f"""{self.name} ({self.nickname})
+Основные факты:
+{core_facts}
         
-        Свежие факты:
-        {self.recent_facts}
+Свежие факты:
+{recent_facts}
         
-        Примеры сообщений:
-        {self.message_examples}
-        """
+Примеры сообщений:
+{message_examples}"""
 
     @staticmethod
     def parse(config: Dict[str, Any]) -> 'PromptSection':
         return MainCharacter(
             config["name"],
             config["nickname"],
-            "\n".join(f"* {fact}" for fact in config["core_facts"]),
-            "\n".join(f"* {fact}" for fact in config["recent_facts"]),
-            "\n".join(f"* {message}" for message in config["message_examples"])
+            config["core_facts"],
+            config["recent_facts"],
+            config["message_examples"],
         )
 
     def serialize_config(self) -> Dict[str, Any]:
-        return {
-            "type": "main_character"
-        }
+        result = dict()
+        result["type"] = "main_character"
+        result["name"] = self.name
+        result["nickname"] = self.nickname
+        result["core_facts"] = self.core_facts
+        result["recent_facts"] = self.recent_facts
+        result["message_examples"] = self.message_examples
+        return result
 
 class Prompt:
     def __init__(self, config_path: str):
@@ -86,15 +126,17 @@ class Prompt:
     def parse_config(cls, config) -> List[PromptSection]:
         components = []
         for block in config:
-            t = config["type"]
+            t = block["type"]
             if t == "text":
                 components.append(Text.parse(block))
+            if t == "list":
+                components.append(ListSection.parse(block))
             if t == "main_character":
                 components.append(MainCharacter.parse(block))
         return components
 
-    def save_config(self, path: Optional[str] = None):
-        path = path or self.config_path
+    def save_config(self, path: str):
         result = [component.serialize_config() for component in self.config]
-        with open(path, "w") as f:
-            yaml.safe_dump(result, f)
+        print(result)
+        with open(path, "w", encoding="utf-8") as f:
+            yaml.safe_dump(result, f, sort_keys=False)

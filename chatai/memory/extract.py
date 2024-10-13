@@ -10,7 +10,7 @@ from chatai import OPENAI_CLIENT
 from chatai.type_names import ChatMessage
 from chatai.sql import Session
 from chatai.sql.tables import Message, Memory
-from chatai.prompt import Chat
+from chatai.prompt.chat import Chat
 
 
 @dataclass

@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from chatai.type_names import ChatMessage, CompletionMessage, TypedContent
+from chatai.prompt.prompt import Prompt
 
 
 USERNAME_TO_DISPLAY_NAME = {
@@ -18,13 +19,15 @@ USERNAME_TO_DISPLAY_NAME = {
 FOCUS_PROMPT = "Отвечай только на текст последнего сообщения. Иногда сообщение может начинаться с «(от: …)», тут будет написано имя того, кто тебе пишет, используй это, чтобы сделать ответ контекстным, но помимо этого не используй эту часть. Иногда сообщение может начинаться с «(ответ на: …)», в таких случаях сообщение - это ответ на другое сообщение, его текст приведен в этом блоке. Если нужно, используй его, чтобы сделать ответ контекстным. Но твоя основная задача - ответить на основной текст сообщения, для этого используй только текст после вступительных секций «от» и «ответ на». НИКОГДА и ни при каких условиях не добавляй в ответ цитируемые сообщения, «от» или «ответ на»."
 
 class Chat:
-    def __init__(self, prompt_file_path: str):
-        self.prompt_file_path = prompt_file_path
+    def __init__(self, prompt_config_file_path: str):
+        self.prompt_config_file_path = prompt_config_file_path
         
     def generate(self, messages: List[ChatMessage]) -> List[CompletionMessage]:
-        with open(self.prompt_file_path, 'r') as f:
-            system_prompt = f.read()
-        result = [{"role": "system", "content": system_prompt}, {"role": "system", "content": FOCUS_PROMPT}]
+        system_prompt = Prompt(self.prompt_config_file_path)
+        result = [
+            {"role": "system", "content": system_prompt.print()},
+            {"role": "system", "content": FOCUS_PROMPT}
+        ]
         for message in messages:
             role = "assistant" if message.username == "boggeyman_ai_bot" else "user"
             content = self.encode(message)
