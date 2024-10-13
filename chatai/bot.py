@@ -14,7 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from chatai import OPENAI_CLIENT
 from chatai.util import MessageCache
 from chatai.type_names import ChatMessage
-from chatai.prompt import Prompt
+from chatai.prompt.chat import Chat
 from chatai.sql import Session
 from chatai.sql.tables import Message as MessageRow
 from chatai.memory.schedule import get_shutdown_handler, create_cron_job, remove_cron_job
@@ -47,7 +47,7 @@ async def handle_message(update: Update, context: CallbackContext):
         # Add to cache
         MESSAGE_CACHE.add_message(chat_message)
 
-        prompt = Prompt("chatai/prompt.txt")
+        prompt = Chat("chatai/prompt.txt")
         prev_messages = MESSAGE_CACHE.get_last_n_messages(
             CONFIG["serving"]["max_messages_in_memory"],
         )

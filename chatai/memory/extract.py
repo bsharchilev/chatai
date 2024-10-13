@@ -10,7 +10,7 @@ from chatai import OPENAI_CLIENT
 from chatai.type_names import ChatMessage
 from chatai.sql import Session
 from chatai.sql.tables import Message, Memory
-from chatai.prompt import Prompt
+from chatai.prompt import Chat
 
 
 @dataclass
@@ -98,7 +98,7 @@ def read_messages_by_ids(ids: List[int]) -> List[Message]:
 def encode_messages(message_rows: List[Message], quoted_messages: List[Message]) -> List[str]:
     quoted_message_by_id = {m.id: m for m in quoted_messages}
 
-    prompt = Prompt(os.getenv("SYSTEM_MEMORY_PROMPT_PATH"))
+    prompt = Chat(os.getenv("SYSTEM_MEMORY_PROMPT_PATH"))
     chat_messages = []
     for row in message_rows:
         quoted_message = None
