@@ -191,7 +191,7 @@ def make_request(
             "max_tokens": max_tokens,
             "messages": input_messages,
             "response_format": schema,
-            "n": 5,
+            # "n": 5,
         }
     }
 
