@@ -308,8 +308,8 @@ if __name__ == "__main__":
     now = int(time.time())
     extract_memories(
         ChatInfo(CHAT_ID, names),
-        1728601200,
         1728687600,
+        1728774000,
         MODEL,
         MAX_TOKENS,
     )
