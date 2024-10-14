@@ -20,7 +20,7 @@ class Message(Base):
         return f"<{self.__class__.__name__}({fields})>"
 
 class Memory(Base):
-    __tablename__ = 'memories'
+    __tablename__ = 'memories1'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     chat_id = Column(BigInteger, nullable=True)

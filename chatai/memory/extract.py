@@ -292,16 +292,37 @@ if __name__ == "__main__":
                                     "Андрей Гайбун",
                                 ]
 
-    LOOKBACK_DAYS = 5
+    LOOKBACK_DAYS = 1
     CHAT_ID = -1001783745747
     MODEL = "gpt-4o-2024-08-06"
     MAX_TOKENS = 2000
 
+    # 1728428400
+    # 1728514800
+    # 1728601200
+    # 1728687600
+    # 1728774000
+    # 1728860400
+
     now = int(time.time())
     extract_memories(
         ChatInfo(CHAT_ID, names),
-        now - 60 * 60 * 24,
-        now,
+        1728428400,
+        1728514800,
         MODEL,
         MAX_TOKENS,
     )
+
+    # LOOKBACK_DAYS = 5
+    # CHAT_ID = -1001783745747
+    # MODEL = "gpt-4o-2024-08-06"
+    # MAX_TOKENS = 2000
+    #
+    # now = int(time.time())
+    # extract_memories(
+    #     ChatInfo(CHAT_ID, names),
+    #     now - 60 * 60 * 24,
+    #     now,
+    #     MODEL,
+    #     MAX_TOKENS,
+    # )
