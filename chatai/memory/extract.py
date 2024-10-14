@@ -283,7 +283,10 @@ def prepare_memories_by_user() -> Dict[str, List[Memory]]:
     finally:
         session.close()
 
-    return {m.character_name: m for m in memories}
+    result = defaultdict(list)
+    for m in memories:
+        result[m.character_name].append(m)
+    return result
 
 if __name__ == "__main__":
     names = [
