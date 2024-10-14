@@ -1,4 +1,5 @@
 import yaml
+import random
 from abc import abstractmethod, ABCMeta
 from typing import Any, Dict, List
 
@@ -78,16 +79,14 @@ class MainCharacter(PromptSection):
         self.message_examples = message_examples
 
     def __str__(self):
-        core_facts = "\n".join(f"* {fact}" for fact in self.core_facts)
-        recent_facts = "\n".join(f"* {fact}" for fact in self.recent_facts)
+        facts = self.core_facts + self.recent_facts
+        random.shuffle(facts)
+        facts_str = "\n".join(f"* {fact}" for fact in facts)
         message_examples = "\n".join(f"* {message}" for message in self.message_examples)
         return \
         f"""{self.name} ({self.nickname})
-Основные факты:
-{core_facts}
-        
-Свежие факты:
-{recent_facts}
+Интересные факты:
+{facts_str}
         
 Примеры сообщений:
 {message_examples}"""

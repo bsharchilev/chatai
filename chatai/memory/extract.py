@@ -28,41 +28,41 @@ def extract_memories(
         model: str,
         max_tokens: int,
 ):
-    # print("Reading prompts...")
-    # with open(os.getenv("SYSTEM_MEMORY_PROMPT_PATH"), "r") as f:
-    #     system_prompt = f.read()
-    # with open(os.getenv("EXTRACT_MEMORY_PROMPT_PATH"), "r") as f:
-    #     memory_prompt = f.read()
-    #
-    # print("Reading messages...")
-    # message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
-    # print("Reading quoted messages...")
-    # quoted_message_rows = read_messages_by_ids(
-    #     list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
-    # )
-    # print("Encoding messages...")
-    # chat_messages = encode_messages(message_rows, quoted_message_rows)
-    # chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m) or ("boggeyman_ai_bot" in m))]
-    # print(chat_messages)
-    #
-    # print("Making request...")
-    # request_id = f"memory_extraction_{chat_info.id}_{start_unixtime_inclusive}_{end_unixtime_exclusive}"
-    # request = make_request(
-    #     request_id,
-    #     chat_info.character_names,
-    #     chat_messages,
-    #     system_prompt,
-    #     memory_prompt,
-    #     model,
-    #     max_tokens,
-    # )
-    # print("Submitting request...")
-    # response = submit_and_wait_batch_task(OPENAI_CLIENT, [request], request_id)
-    # print("Parsing results...")
-    # memories = [json.loads(n.strip('\n')) for n in response.text.split('\n')[:-1]]
-    #
-    # print("Dumping results...")
-    # dump_memories(memories, chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+    print("Reading prompts...")
+    with open(os.getenv("SYSTEM_MEMORY_PROMPT_PATH"), "r") as f:
+        system_prompt = f.read()
+    with open(os.getenv("EXTRACT_MEMORY_PROMPT_PATH"), "r") as f:
+        memory_prompt = f.read()
+
+    print("Reading messages...")
+    message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+    print("Reading quoted messages...")
+    quoted_message_rows = read_messages_by_ids(
+        list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
+    )
+    print("Encoding messages...")
+    chat_messages = encode_messages(message_rows, quoted_message_rows)
+    chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m) or ("boggeyman_ai_bot" in m))]
+    print(chat_messages)
+
+    print("Making request...")
+    request_id = f"memory_extraction_{chat_info.id}_{start_unixtime_inclusive}_{end_unixtime_exclusive}"
+    request = make_request(
+        request_id,
+        chat_info.character_names,
+        chat_messages,
+        system_prompt,
+        memory_prompt,
+        model,
+        max_tokens,
+    )
+    print("Submitting request...")
+    response = submit_and_wait_batch_task(OPENAI_CLIENT, [request], request_id)
+    print("Parsing results...")
+    memories = [json.loads(n.strip('\n')) for n in response.text.split('\n')[:-1]]
+
+    print("Dumping results...")
+    dump_memories(memories, chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
 
     print("Exporting prompt...")
     export_prompt()
