@@ -258,6 +258,7 @@ def export_prompt():
     prompt = Prompt("chatai/prompt.yaml")
 
     new_recent_memories = prepare_memories_by_user()
+    print((name, [m.fact for m in mem]) for name, mem in new_recent_memories.items())
     for i, component in enumerate(prompt.config):
         if not isinstance(component, ListSection) or not isinstance(component.items[0], MainCharacter):
             continue
