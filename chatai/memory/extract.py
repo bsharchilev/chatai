@@ -28,44 +28,44 @@ def extract_memories(
         model: str,
         max_tokens: int,
 ):
-    print("Reading prompts...")
-    with open(os.getenv("SYSTEM_MEMORY_PROMPT_PATH"), "r") as f:
-        system_prompt = f.read()
-    with open(os.getenv("EXTRACT_MEMORY_PROMPT_PATH"), "r") as f:
-        memory_prompt = f.read()
-
-    print("Reading messages...")
-    message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
-    print("Reading quoted messages...")
-    quoted_message_rows = read_messages_by_ids(
-        list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
-    )
-    print("Encoding messages...")
-    chat_messages = encode_messages(message_rows, quoted_message_rows)
-    chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m) or ("boggeyman_ai_bot" in m))]
-    print(chat_messages)
-
-    print("Making request...")
-    request_id = f"memory_extraction_{chat_info.id}_{start_unixtime_inclusive}_{end_unixtime_exclusive}"
-    request = make_request(
-        request_id,
-        chat_info.character_names,
-        chat_messages,
-        system_prompt,
-        memory_prompt,
-        model,
-        max_tokens,
-    )
-    print("Submitting request...")
-    response = submit_and_wait_batch_task(OPENAI_CLIENT, [request], request_id)
-    print("Parsing results...")
-    memories = [json.loads(n.strip('\n')) for n in response.text.split('\n')[:-1]]
-
-    print("Dumping results...")
-    memories = dump_memories(memories, chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+    # print("Reading prompts...")
+    # with open(os.getenv("SYSTEM_MEMORY_PROMPT_PATH"), "r") as f:
+    #     system_prompt = f.read()
+    # with open(os.getenv("EXTRACT_MEMORY_PROMPT_PATH"), "r") as f:
+    #     memory_prompt = f.read()
+    #
+    # print("Reading messages...")
+    # message_rows = read_messages(chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
+    # print("Reading quoted messages...")
+    # quoted_message_rows = read_messages_by_ids(
+    #     list(set(m.reply_to_message_id for m in message_rows if m.reply_to_message_id))
+    # )
+    # print("Encoding messages...")
+    # chat_messages = encode_messages(message_rows, quoted_message_rows)
+    # chat_messages = [m for m in chat_messages if not (("(от: Бугимен)" in m) or ("(ответ на: Бугимен" in m) or ("boggeyman_ai_bot" in m))]
+    # print(chat_messages)
+    #
+    # print("Making request...")
+    # request_id = f"memory_extraction_{chat_info.id}_{start_unixtime_inclusive}_{end_unixtime_exclusive}"
+    # request = make_request(
+    #     request_id,
+    #     chat_info.character_names,
+    #     chat_messages,
+    #     system_prompt,
+    #     memory_prompt,
+    #     model,
+    #     max_tokens,
+    # )
+    # print("Submitting request...")
+    # response = submit_and_wait_batch_task(OPENAI_CLIENT, [request], request_id)
+    # print("Parsing results...")
+    # memories = [json.loads(n.strip('\n')) for n in response.text.split('\n')[:-1]]
+    #
+    # print("Dumping results...")
+    # dump_memories(memories, chat_info.id, start_unixtime_inclusive, end_unixtime_exclusive)
 
     print("Exporting prompt...")
-    # export_prompt(memories)
+    export_prompt()
 
 
 def read_messages(chat_id: int, start_unixtime_inclusive: int, end_unixtime_exclusive: int) -> List[Message]:
@@ -254,32 +254,35 @@ def dump_memories(memories, chat_id: int, start_unixtime: int, end_unixtime: int
         session.close()
     return result
 
-def export_prompt(memories: List[Memory]):
+def export_prompt():
     prompt = Prompt("chatai/prompt.yaml")
 
-    name_to_config: Dict[str, MainCharacter] = {}
-    main_char_list_idx = None
+    new_recent_memories = prepare_memories_by_user()
     for i, component in enumerate(prompt.config):
         if not isinstance(component, ListSection) or not isinstance(component.items[0], MainCharacter):
             continue
-        main_char_list_idx = i
         for char in component.items:
             c: MainCharacter = char
-            name_to_config[c.name] = c
-
-    name_to_memories = defaultdict(list)
-    for memory in memories:
-        name_to_memories[memory.character_name].append((memory.fact, memory.interest_score))
-    for name in name_to_memories:
-        memories_for_name = name_to_memories[name]
-        memories_for_name = sorted(memories_for_name, key=lambda fact_and_score: -fact_and_score[1])
-        memories_for_name = [mem[0] for mem in memories_for_name]
-        name_to_config[name].recent_facts = memories_for_name
-    prompt.config[main_char_list_idx].items = list(name_to_config.values())
+            c.recent_facts = [m.fact for m in new_recent_memories[c.name]]
 
     prompt.save_config("chatai/prompt1.yaml")
     with open("chatai/prompt1.txt", "w") as f:
         f.write(prompt.print())
+
+def prepare_memories_by_user() -> Dict[str, List[Memory]]:
+    try:
+        session = Session()
+
+        earliest_ts = int(time.time()) - 7 * 60 * 60 * 24
+        query = session.query(Memory).filter(Memory.start_unixtime >= earliest_ts)
+        memories = query.all()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+
+    return {m.character_name: m for m in memories}
 
 if __name__ == "__main__":
     names = [
@@ -298,32 +301,11 @@ if __name__ == "__main__":
     MODEL = "gpt-4o-2024-08-06"
     MAX_TOKENS = 2000
 
-    # 1728428400
-    # 1728514800
-    # 1728601200
-    # 1728687600
-    # 1728774000
-    # 1728860400
-
     now = int(time.time())
     extract_memories(
         ChatInfo(CHAT_ID, names),
-        1728774000,
-        1728860400,
+        now - 60 * 60 * 24,
+        now,
         MODEL,
         MAX_TOKENS,
     )
-
-    # LOOKBACK_DAYS = 5
-    # CHAT_ID = -1001783745747
-    # MODEL = "gpt-4o-2024-08-06"
-    # MAX_TOKENS = 2000
-    #
-    # now = int(time.time())
-    # extract_memories(
-    #     ChatInfo(CHAT_ID, names),
-    #     now - 60 * 60 * 24,
-    #     now,
-    #     MODEL,
-    #     MAX_TOKENS,
-    # )
