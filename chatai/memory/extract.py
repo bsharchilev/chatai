@@ -266,8 +266,8 @@ def export_prompt():
             c: MainCharacter = char
             c.recent_facts = [m.fact for m in new_recent_memories[c.name]]
 
-    prompt.save_config("chatai/prompt1.yaml")
-    with open("chatai/prompt1.txt", "w") as f:
+    prompt.save_config("chatai/prompt.yaml")
+    with open("chatai/prompt.txt", "w") as f:
         f.write(prompt.print())
 
 def prepare_memories_by_user() -> Dict[str, List[Memory]]:
