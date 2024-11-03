@@ -1,7 +1,9 @@
-import yaml
+from ruamel import yaml
 import random
 from abc import abstractmethod, ABCMeta
 from typing import Any, Dict, List
+
+from sqlalchemy.dialects.mysql.mariadb import loader
 
 
 class PromptSection:
@@ -115,7 +117,7 @@ class Prompt:
     def __init__(self, config_path: str):
         self.config_path = config_path
         with open(config_path, "r") as f:
-            _config = yaml.safe_load(f)
+            _config = yaml.load(f, Loader=yaml.RoundTripLoader)
         self.config = Prompt.parse_config(_config)
 
     def print(self):
@@ -138,4 +140,4 @@ class Prompt:
         result = [component.serialize_config() for component in self.config]
         print(result)
         with open(path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(result, f, sort_keys=False, allow_unicode=True)
+            yaml.dump(result, f, allow_unicode=True, Dumper=yaml.RoundTripDumper)
