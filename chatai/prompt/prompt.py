@@ -4,8 +4,10 @@ from abc import abstractmethod, ABCMeta
 from typing import Any, Dict, List
 
 from sqlalchemy.dialects.mysql.mariadb import loader
-YAML = yaml.YAML(typ='rt')
 
+
+YAML = yaml.YAML(typ='rt')
+YAML.default_style = "|"
 
 class PromptSection:
     __metaclass__ = ABCMeta
