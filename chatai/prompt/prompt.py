@@ -4,6 +4,7 @@ from abc import abstractmethod, ABCMeta
 from typing import Any, Dict, List
 
 from sqlalchemy.dialects.mysql.mariadb import loader
+YAML = yaml.YAML(typ='rt')
 
 
 class PromptSection:
@@ -117,7 +118,7 @@ class Prompt:
     def __init__(self, config_path: str):
         self.config_path = config_path
         with open(config_path, "r") as f:
-            _config = yaml.load(f, Loader=yaml.RoundTripLoader)
+            _config = YAML.load(f)
         self.config = Prompt.parse_config(_config)
 
     def print(self):
@@ -140,4 +141,4 @@ class Prompt:
         result = [component.serialize_config() for component in self.config]
         print(result)
         with open(path, "w", encoding="utf-8") as f:
-            yaml.dump(result, f, allow_unicode=True, Dumper=yaml.RoundTripDumper)
+            YAML.dump(result, f)
