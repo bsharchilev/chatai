@@ -12,7 +12,7 @@ def parse_arguments():
     )
 
     # Define the main command parameter
-    subparsers = parser.add_subparsers(dest="commands", help="Available commands")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Mode 1: 'process'
     process_parser = subparsers.add_parser(
