@@ -138,4 +138,4 @@ class Prompt:
         result = [component.serialize_config() for component in self.config]
         print(result)
         with open(path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(result, f, sort_keys=False)
+            yaml.safe_dump(result, f, sort_keys=False, allow_unicode=True)
