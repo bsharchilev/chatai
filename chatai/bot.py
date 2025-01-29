@@ -157,13 +157,13 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
 
 # Main function to start the bot
 def main():
-    cron = CronTab(user=True)
+    # cron = CronTab(user=True)
 
-    shutdown_handler = get_shutdown_handler(cron)
-    signal.signal(signal.SIGINT, shutdown_handler)
-    signal.signal(signal.SIGTERM, shutdown_handler)
-    atexit.register(lambda: remove_cron_job(cron))
-    create_cron_job(cron)
+    # shutdown_handler = get_shutdown_handler(cron)
+    # signal.signal(signal.SIGINT, shutdown_handler)
+    # signal.signal(signal.SIGTERM, shutdown_handler)
+    # atexit.register(lambda: remove_cron_job(cron))
+    # create_cron_job(cron)
 
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     filt = ~filters.COMMAND
@@ -173,7 +173,7 @@ def main():
         app.run_polling()
     except Exception as e:
         print(f"Error: {e}")
-        remove_cron_job(cron)
+        # remove_cron_job(cron)
 
 if __name__ == "__main__":
    main()
