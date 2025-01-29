@@ -15,7 +15,7 @@ from chatai import OPENAI_CLIENT
 from chatai.util import MessageCache
 from chatai.type_names import ChatMessage
 from chatai.prompt.chat import Chat
-from chatai.sql import Session
+# from chatai.sql import Session
 from chatai.sql.tables import Message as MessageRow
 from chatai.memory.schedule import get_shutdown_handler, create_cron_job, remove_cron_job
 
@@ -38,7 +38,7 @@ async def handle_message(update: Update, context: CallbackContext):
         # Get the user's message
         chat_message = await parse_message(update.message, context)
         # Persist in context for future trend extraction
-        log_message(chat_message, update)
+        # log_message(chat_message, update)
 
         # Abort if should not respond
         if not should_respond(update):
@@ -116,44 +116,44 @@ async def parse_message(message: Message, context: CallbackContext) -> ChatMessa
         parsed_reply,
     )
 
-def log_message(message: ChatMessage, update: Update):
-    try:
-        session = Session()
-
-        message_row = _build_orm(
-            message,
-            update.message.id,
-            update.effective_chat.id,
-            update.message.reply_to_message.id if update.message.reply_to_message else None,
-        )
-        session.add(message_row)
-
-        if message.reply_to_message:
-            reply_message_row = _build_orm(
-                message.reply_to_message,
-                update.message.reply_to_message.id,
-                update.effective_chat.id,
-                None,
-            )
-            session.merge(reply_message_row)
-
-        session.commit()
-    except SQLAlchemyError as e:
-        session.rollback()
-        raise e
-    finally:
-        session.close()
-
-def _build_orm(message: ChatMessage, message_id: int, chat_id: int, reply_to_id: Optional[int]) -> MessageRow:
-    return MessageRow(
-        id=message_id,
-        chat_id=chat_id,
-        username=message.username,
-        text=message.text,
-        unixtime=message.unixtime,
-        image_b64_encoded=message.image_b64_encoded,
-        reply_to_message_id=reply_to_id,
-    )
+# def log_message(message: ChatMessage, update: Update):
+#     try:
+#         session = Session()
+#
+#         message_row = _build_orm(
+#             message,
+#             update.message.id,
+#             update.effective_chat.id,
+#             update.message.reply_to_message.id if update.message.reply_to_message else None,
+#         )
+#         session.add(message_row)
+#
+#         if message.reply_to_message:
+#             reply_message_row = _build_orm(
+#                 message.reply_to_message,
+#                 update.message.reply_to_message.id,
+#                 update.effective_chat.id,
+#                 None,
+#             )
+#             session.merge(reply_message_row)
+#
+#         session.commit()
+#     except SQLAlchemyError as e:
+#         session.rollback()
+#         raise e
+#     finally:
+#         session.close()
+#
+# def _build_orm(message: ChatMessage, message_id: int, chat_id: int, reply_to_id: Optional[int]) -> MessageRow:
+#     return MessageRow(
+#         id=message_id,
+#         chat_id=chat_id,
+#         username=message.username,
+#         text=message.text,
+#         unixtime=message.unixtime,
+#         image_b64_encoded=message.image_b64_encoded,
+#         reply_to_message_id=reply_to_id,
+#     )
 
 # Main function to start the bot
 def main():

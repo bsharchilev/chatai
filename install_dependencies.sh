@@ -64,7 +64,7 @@ function setup_virtualenv {
 # Function to install required Python libraries
 function install_python_libraries {
     echo_info "Installing required Python libraries..."
-    pip install python-telegram-bot openai
+    pip install python-telegram-bot openai pyyaml crontab sqlalchemy ruamel.yaml
     if [ $? -ne 0 ]; then
         echo_error "Error installing dependencies. If you're in a managed environment, consider using a virtual environment."
         echo_info "Instructions:"
@@ -86,6 +86,11 @@ function install_tmux {
     else
         echo_info "Skipping tmux installation."
     fi
+}
+
+function install_mysql {
+  echo_info "Installing mysql..."
+  sudo apt install -y default-mysql-client
 }
 
 # Function to validate environment variables
@@ -111,6 +116,7 @@ function main {
     setup_virtualenv
     install_python_libraries
     install_tmux
+    install_mysql
 
     echo_info "All dependencies have been installed successfully!"
     echo_info "You can now run your Telegram bot or any other scripts on this VM."
