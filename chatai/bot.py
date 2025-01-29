@@ -16,7 +16,7 @@ from chatai.util import MessageCache
 from chatai.type_names import ChatMessage
 from chatai.prompt.chat import Chat
 # from chatai.sql import Session
-from chatai.sql.tables import Message as MessageRow
+# from chatai.sql.tables import Message as MessageRow
 from chatai.memory.schedule import get_shutdown_handler, create_cron_job, remove_cron_job
 
 # Define the Telegram bot token
