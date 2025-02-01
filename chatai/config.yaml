@@ -1,6 +1,6 @@
 model:
-  name: gpt-4o
-  prompt: enter here
+  vendor: deepseek
+  name: deepseek-chat
 
 serving:
   max_messages_in_memory: 3

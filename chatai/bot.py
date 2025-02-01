@@ -11,7 +11,7 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackCo
 from typing import Optional
 from sqlalchemy.exc import SQLAlchemyError
 
-from chatai import OPENAI_CLIENT
+from chatai import OPENAI_CLIENT, DEEPSEEK_CLIENT
 from chatai.util import MessageCache
 from chatai.type_names import ChatMessage
 from chatai.prompt.chat import Chat
@@ -54,7 +54,8 @@ async def handle_message(update: Update, context: CallbackContext):
         if update.message.text == "!контекст":
             await update.message.reply_text(str(prompt.generate(prev_messages)[1:]))
             return
-        response = OPENAI_CLIENT.chat.completions.create(
+        llm_client = DEEPSEEK_CLIENT if CONFIG["model"]["vendor"] == "deepseek" else OPENAI_CLIENT
+        response = llm_client.chat.completions.create(
             model=CONFIG["model"]["name"],
             messages=prompt.generate(prev_messages),
             max_tokens=300,
